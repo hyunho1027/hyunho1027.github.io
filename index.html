@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Srinivasa Ramanujan — The Man Who Knew Infinity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #0b0a08;
+      --surface:   #13110d;
+      --border:    #2a2318;
+      --gold:      #c9953a;
+      --gold-lt:   #e8b96a;
+      --gold-dim:  #7a5820;
+      --cream:     #f0e8d5;
+      --text:      #d4c9b0;
+      --muted:     #6e6249;
+      --accent:    #8b3a2a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas Background ── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .wrap { position: relative; z-index: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      background: linear-gradient(to bottom, rgba(11,10,8,0.95), transparent);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s;
+    }
+    nav.scrolled { border-color: var(--border); }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: 'Crimson Pro', serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold-lt); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 8rem 3rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 4rem;
+    }
+    .hero-text { animation: fadeUp 1.2s ease both; }
+    .hero-eyebrow {
+      font-family: 'Crimson Pro', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.35em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.4rem;
+    }
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: 0.6rem;
+    }
+    .hero-name em {
+      display: block;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--gold);
+    }
+    .hero-dates {
+      font-family: 'Crimson Pro', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+    }
+    .hero-quote {
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--text);
+      border-left: 2px solid var(--gold-dim);
+      padding-left: 1.4rem;
+      margin-bottom: 2.5rem;
+      opacity: 0.85;
+    }
+    .hero-quote cite {
+      display: block;
+      font-size: 0.8rem;
+      font-style: normal;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+    }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .tag {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--gold-dim);
+      padding: 0.35rem 0.9rem;
+      border-radius: 1px;
+    }
+
+    .hero-visual {
+      animation: fadeUp 1.4s 0.2s ease both;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+    .portrait-frame {
+      position: relative;
+      width: 280px;
+      height: 340px;
+    }
+    .portrait-frame::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border: 1px solid var(--gold-dim);
+      animation: rotateBorder 20s linear infinite;
+    }
+    .portrait-frame::after {
+      content: '';
+      position: absolute;
+      inset: -24px;
+      border: 1px solid rgba(201,149,58,0.2);
+    }
+    .portrait-inner {
+      width: 100%;
+      height: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .portrait-svg { width: 160px; height: 200px; opacity: 0.7; }
+    .formula-strip {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--gold-dim);
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 3rem;
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    }
+    .section-divider span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      color: var(--gold-dim);
+    }
+
+    /* ── SECTION WRAPPER ── */
+    section {
+      max-width: 1200px;
+      margin: 0 auto 7rem;
+      padding: 0 3rem;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .section-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.15;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    /* ── BIOGRAPHY ── */
+    .bio-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .bio-text p {
+      margin-bottom: 1.4rem;
+      font-size: 1.08rem;
+      color: var(--text);
+      font-weight: 300;
+    }
+    .bio-text p strong {
+      color: var(--cream);
+      font-weight: 400;
+    }
+    .bio-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: sticky;
+      top: 6rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.4rem 1.6rem;
+      border-left: 3px solid var(--gold-dim);
+    }
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.4rem;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    /* ── ACHIEVEMENTS / TIMELINE ── */
+    .timeline { position: relative; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold-dim) 10%, var(--gold-dim) 90%, transparent);
+    }
+    .tl-item {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3.5rem;
+      padding-left: 2rem;
+      position: relative;
+      animation: fadeUp 0.8s ease both;
+    }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 0.5rem;
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--gold);
+      background: var(--bg);
+      transform: rotate(45deg);
+    }
+    .tl-year {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--gold-dim);
+      letter-spacing: 0.1em;
+      padding-top: 0.2rem;
+      text-align: right;
+    }
+    .tl-content h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .tl-content p {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .tl-formula {
+      display: inline-block;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--gold);
+      background: rgba(201,149,58,0.06);
+      border: 1px solid rgba(201,149,58,0.2);
+      padding: 0.5rem 1rem;
+      margin-top: 0.8rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── CONTRIBUTIONS CARDS ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .contrib-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .contrib-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-4px);
+    }
+    .contrib-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .contrib-card:hover::before { opacity: 1; }
+    .card-icon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-style: italic;
+      color: var(--gold-dim);
+      margin-bottom: 1rem;
+      line-height: 1;
+    }
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--cream);
+      margin-bottom: 0.8rem;
+    }
+    .card-body {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── FORMULAS SHOWCASE ── */
+    .formulas-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .formulas-section::after {
+      content: '∞';
+      position: absolute;
+      right: -1rem;
+      bottom: -4rem;
+      font-size: 20rem;
+      font-family: 'Cormorant Garamond', serif;
+      color: rgba(201,149,58,0.04);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .formula-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      margin-top: 2rem;
+    }
+    .formula-item {
+      border-left: 2px solid var(--border);
+      padding-left: 1.5rem;
+      transition: border-color 0.3s;
+    }
+    .formula-item:hover { border-color: var(--gold-dim); }
+    .formula-name {
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.7rem;
+    }
+    .formula-eq {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      color: var(--cream);
+      line-height: 1.5;
+      margin-bottom: 0.6rem;
+    }
+    .formula-desc {
+      font-size: 0.92rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── LEGACY ── */
+    .legacy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .legacy-text h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--cream);
+      margin-bottom: 1.2rem;
+    }
+    .legacy-text p {
+      font-size: 1.02rem;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+    }
+    .legacy-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .legacy-list li {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+    }
+    .legacy-list li::before {
+      content: '◆';
+      position: absolute;
+      left: 0;
+      font-size: 0.45rem;
+      color: var(--gold-dim);
+      top: 0.55rem;
+    }
+    .big-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 3vw, 2.5rem);
+      font-style: italic;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1.3;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+    .big-quote cite {
+      display: block;
+      font-size: 0.82rem;
+      font-style: normal;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 1rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: var(--gold-dim);
+    }
+    .footer-note {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes rotateBorder {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* Intersection observer classes */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 3rem; text-align: center; }
+      .hero-visual { display: none; }
+      section { padding: 0 1.5rem; }
+      .bio-grid { grid-template-columns: 1fr; }
+      .bio-stats { position: static; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .formula-grid { grid-template-columns: 1fr; }
+      .legacy-grid { grid-template-columns: 1fr; }
+      .tl-item { grid-template-columns: 1fr; gap: 0.5rem; }
+      .tl-year { text-align: left; }
+      .formulas-section { padding: 2rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      .section-divider { padding: 0 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrap">
+
+  <!-- NAV -->
+  <nav id="main-nav">
+    <a href="#" class="nav-logo">S. Ramanujan</a>
+    <ul class="nav-links">
+      <li><a href="#biography">생애</a></li>
+      <li><a href="#timeline">연혁</a></li>
+      <li><a href="#contributions">업적</a></li>
+      <li><a href="#formulas">공식</a></li>
+      <li><a href="#legacy">유산</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <p class="hero-eyebrow">수학자 / Mathematician</p>
+      <h1 class="hero-name">
+        Srinivasa
+        <em>Ramanujan</em>
+      </h1>
+      <p class="hero-dates">1887. 12. 22 — 1920. 4. 26</p>
+      <blockquote class="hero-quote">
+        "An equation for me has no meaning unless it expresses a thought of God."
+        <cite>— Srinivasa Ramanujan</cite>
+      </blockquote>
+      <div class="hero-tags">
+        <span class="tag">정수론</span>
+        <span class="tag">무한급수</span>
+        <span class="tag">분할수</span>
+        <span class="tag">연분수</span>
+        <span class="tag">타원함수</span>
+        <span class="tag">모듈함수</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="portrait-frame">
+        <div class="portrait-inner">
+          <svg class="portrait-svg" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="80" cy="68" rx="38" ry="46" fill="#c9953a" opacity="0.15"/>
+            <ellipse cx="80" cy="68" rx="36" ry="44" fill="none" stroke="#c9953a" stroke-width="0.8" opacity="0.4"/>
+            <circle cx="80" cy="60" r="30" fill="#1a150e"/>
+            <ellipse cx="80" cy="56" rx="16" ry="20" fill="#c9953a" opacity="0.3"/>
+            <circle cx="71" cy="53" r="4" fill="#c9953a" opacity="0.6"/>
+            <circle cx="89" cy="53" r="4" fill="#c9953a" opacity="0.6"/>
+            <path d="M70 68 Q80 74 90 68" stroke="#c9953a" stroke-width="1.2" fill="none" opacity="0.6"/>
+            <rect x="55" y="95" width="50" height="65" rx="4" fill="#c9953a" opacity="0.12"/>
+            <rect x="55" y="95" width="50" height="65" rx="4" fill="none" stroke="#c9953a" stroke-width="0.7" opacity="0.3"/>
+            <line x1="45" y1="110" x2="55" y2="110" stroke="#c9953a" stroke-width="1" opacity="0.3"/>
+            <line x1="105" y1="110" x2="115" y2="110" stroke="#c9953a" stroke-width="1" opacity="0.3"/>
+            <text x="80" y="145" font-family="Georgia, serif" font-size="8" fill="#c9953a" opacity="0.5" text-anchor="middle" font-style="italic">∫ ∑ π ∞</text>
+            <circle cx="80" cy="68" r="55" fill="none" stroke="#c9953a" stroke-width="0.4" stroke-dasharray="3 6" opacity="0.2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="formula-strip">
+        1 + e<sup>iπ</sup> = 0 &nbsp;·&nbsp; τ(n) ∑ ∞ &nbsp;·&nbsp; p(n) ∼ e<sup>π√(2n/3)</sup>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><span>✦</span></div>
+
+  <!-- BIOGRAPHY -->
+  <section id="biography">
+    <div class="section-header reveal">
+      <span class="section-number">01</span>
+      <h2 class="section-title">생애 &amp; <em>배경</em></h2>
+    </div>
+    <div class="bio-grid">
+      <div class="bio-text reveal">
+        <p>
+          <strong>스리니바사 라마누잔(Srinivasa Ramanujan)</strong>은 1887년 12월 22일 인도 타밀나두 주 에로드(Erode)에서 태어났습니다. 가난한 브라만 가정에서 자라난 그는 정규 수학 교육을 거의 받지 못했음에도 불구하고, 독학으로 수학의 깊은 진리를 터득하여 20세기 최고의 수학적 천재 중 한 명으로 역사에 이름을 남겼습니다.
+        </p>
+        <p>
+          어린 시절부터 그는 숫자와 특별한 관계를 맺었습니다. 10세에 이미 지역 도서관에서 빌린 책으로 삼각함수를 독학했고, 13세에는 오일러의 항등식을 스스로 재발견했습니다. <strong>G.S. Carr의 《순수수학의 개요(A Synopsis of Elementary Results in Pure Mathematics)》</strong>는 그의 수학적 여정에 결정적 영향을 미쳤으며, 이 책에 담긴 수천 개의 공식들을 검증하고 확장하면서 독창적인 연구를 시작했습니다.
+        </p>
+        <p>
+          수학에 대한 집착으로 대학 시험에서 수학 이외의 과목은 낙제하는 일이 반복되었고, 결국 학위 없이 마드라스(현 첸나이)의 항만 사무소에서 하급 서기로 일하며 밤마다 수학 연구에 몰두했습니다. 1913년, 그는 자신의 연구 성과를 담은 편지를 영국의 수학자 <strong>G.H. 하디(G.H. Hardy)</strong>에게 보냈고, 하디는 이를 읽고 "일생에 한 번 볼까 말까 한 천재"라고 극찬하며 케임브리지 트리니티 칼리지로 초청했습니다.
+        </p>
+        <p>
+          케임브리지에서의 5년(1914–1919)은 인류 수학사에서 가장 풍요로운 협력 중 하나로 기록됩니다. 그러나 인도의 채식 식단에 익숙했던 라마누잔은 영국의 한랭한 기후와 제1차 세계대전 중의 배급 음식으로 건강이 급격히 악화되었습니다. 결핵 진단을 받고 인도로 귀환한 그는 1920년 4월 26일, 불과 32세의 나이에 생을 마감했습니다.
+        </p>
+      </div>
+      <div class="bio-stats reveal">
+        <div class="stat-card">
+          <div class="stat-value">3,900<span style="font-size:1.2rem">+</span></div>
+          <div class="stat-label">연구 결과 및 공식</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">32</div>
+          <div class="stat-label">생애 (세)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">5</div>
+          <div class="stat-label">케임브리지 체류 (년)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1918</div>
+          <div class="stat-label">왕립학회 회원 선출</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><span>✦</span></div>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div class="section-header reveal">
+      <span class="section-number">02</span>
+      <h2 class="section-title">주요 <em>연혁</em></h2>
+    </div>
+    <div class="timeline">
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1887</div>
+        <div class="tl-content">
+          <h3>타밀나두 에로드에서 출생</h3>
+          <p>12월 22일, 인도 에로드에서 태어났습니다. 현재 이 날은 인도의 <strong>국가 수학의 날(National Mathematics Day)</strong>로 지정되어 있습니다.</p>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1903</div>
+        <div class="tl-content">
+          <h3>Carr의 수학 개요와의 만남</h3>
+          <p>G.S. Carr의 책을 접하며 독학 연구를 본격화했습니다. 이 책의 5,000여 공식들을 검증하고 그 이상으로 확장하는 작업을 시작했습니다.</p>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1911</div>
+        <div class="tl-content">
+          <h3>첫 수학 논문 발표</h3>
+          <p><em>Indian Mathematical Society</em> 저널에 베르누이 수(Bernoulli numbers)에 관한 첫 논문을 발표하며 수학계에 이름을 알렸습니다.</p>
+          <div class="tl-formula">B₂ₙ = (−1)ⁿ⁺¹ · 2(2n)! / (2π)²ⁿ · ζ(2n)</div>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1913</div>
+        <div class="tl-content">
+          <h3>하디에게 편지 — 운명적 만남</h3>
+          <p>G.H. 하디 교수에게 120개 이상의 독창적 공식을 담은 편지를 보냈습니다. 하디는 이를 "역사상 가장 놀라운 편지 중 하나"라고 평했으며, 즉시 케임브리지 초청을 결정했습니다.</p>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1914</div>
+        <div class="tl-content">
+          <h3>케임브리지 트리니티 칼리지 입성</h3>
+          <p>영국으로 건너가 하디와 공동 연구를 시작했습니다. 5년간 수많은 획기적 결과를 발표했으며, 분할수 이론과 원 메서드(Circle method)의 기초를 정립했습니다.</p>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1916</div>
+        <div class="tl-content">
+          <h3>케임브리지 이학사(B.A.) 취득</h3>
+          <p>정규 대학 교육 없이 독자적 연구 성과만으로 케임브리지 이학사 학위를 취득했습니다 (現 박사학위에 상당).</p>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1918</div>
+        <div class="tl-content">
+          <h3>왕립학회 회원(FRS) 선출</h3>
+          <p>31세의 나이로 영국 왕립학회(Fellow of the Royal Society) 회원으로 선출되었습니다. 역사상 최연소 인도인 FRS 중 한 명으로 기록되었습니다. 같은 해 트리니티 칼리지 펠로우로도 선출되었습니다.</p>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-year">1919–20</div>
+        <div class="tl-content">
+          <h3>인도 귀환 &amp; 모의 세타 함수 발견</h3>
+          <p>결핵으로 귀국 후에도 연구를 멈추지 않았습니다. 생의 마지막 해에 <strong>모의 세타 함수(Mock Theta Functions)</strong>를 발견하여 하디에게 편지로 보냈으며, 이는 훗날 현대 물리학의 블랙홀 연구에까지 응용되었습니다.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><span>✦</span></div>
+
+  <!-- CONTRIBUTIONS -->
+  <section id="contributions">
+    <div class="section-header reveal">
+      <span class="section-number">03</span>
+      <h2 class="section-title">핵심 수학적 <em>업적</em></h2>
+    </div>
+    <div class="cards-grid">
+
+      <div class="contrib-card reveal">
+        <div class="card-icon">p(n)</div>
+        <div class="card-title">분할수 이론 (Partition Theory)</div>
+        <div class="card-body">
+          하디와 함께 개발한 <strong>하디-라마누잔 점근 공식</strong>은 정수 n의 분할 수 p(n)을 근사하는 혁명적 방법입니다. 원 메서드(Circle Method)를 수학 역사상 최초로 도입하여 해석적 정수론의 새 장을 열었습니다.
+        </div>
+      </div>
+
+      <div class="contrib-card reveal">
+        <div class="card-icon">τ(n)</div>
+        <div class="card-title">라마누잔 타우 함수</div>
+        <div class="card-body">
+          Δ(q) = q∏(1−qⁿ)²⁴로 정의되는 <strong>타우 함수(τ-function)</strong>를 연구하며 |τ(p)| ≤ 2p^(11/2)라는 추측을 제시했습니다. 이 추측은 1974년 피에르 들리뉴(Pierre Deligne)가 증명하여 필즈상을 수상하는 기반이 되었습니다.
+        </div>
+      </div>
+
+      <div class="contrib-card reveal">
+        <div class="card-icon">θ̃</div>
+        <div class="card-title">모의 세타 함수 (Mock Theta Functions)</div>
+        <div class="card-body">
+          죽음 직전 하디에게 보낸 마지막 편지에서 소개한 <strong>모의 세타 함수</strong>는 약 80년간 수학자들을 미스터리에 빠뜨렸습니다. 2002년 Sander Zwegers가 이를 현대적으로 해석했으며, 현재 끈 이론과 블랙홀 연구에 핵심적으로 활용됩니다.
+        </div>
+      </div>
+
+      <div class="contrib-card reveal">
+        <div class="card-icon">∮</div>
+        <div class="card-title">라마누잔 합산법 (Ramanujan Summation)</div>
+        <div class="card-body">
+          발산하는 급수에 유한한 값을 할당하는 독창적인 방법론입니다. 예를 들어 1+2+3+4+⋯ = −1/12라는 결과는 현대 양자장론과 끈 이론에서 카시미르 효과(Casimir Effect) 계산에 실제로 사용됩니다.
+        </div>
+      </div>
+
+      <div class="contrib-card reveal">
+        <div class="card-icon">π</div>
+        <div class="card-title">π의 급수 표현</div>
+        <div class="card-body">
+          1/π를 계산하기 위한 놀라운 급수 공식을 발견했습니다. 그의 공식은 현재 컴퓨터로 원주율을 수조 자리까지 계산하는 <strong>Chudnovsky 알고리즘</strong>의 직접적인 원형이며, 가장 빠른 π 계산법의 기초입니다.
+        </div>
+      </div>
+
+      <div class="contrib-card reveal">
+        <div class="card-icon">cf</div>
+        <div class="card-title">연분수 (Continued Fractions)</div>
+        <div class="card-body">
+          로저스-라마누잔 항등식(Rogers-Ramanujan identities)을 포함한 수십 개의 놀라운 연분수 공식들을 발견했습니다. 하디는 이 공식들을 "라마누잔의 연구 중 가장 기적적인 부분"이라고 평가했으며, 이는 모듈 함수론과 깊이 연결됩니다.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><span>✦</span></div>
+
+  <!-- FORMULAS -->
+  <section id="formulas">
+    <div class="section-header reveal">
+      <span class="section-number">04</span>
+      <h2 class="section-title">불멸의 <em>공식들</em></h2>
+    </div>
+    <div class="formulas-section reveal">
+      <div class="formula-grid">
+
+        <div class="formula-item">
+          <div class="formula-name">하디-라마누잔 점근 공식</div>
+          <div class="formula-eq">p(n) ∼ (1/4n√3) · e^(π√(2n/3))</div>
+          <div class="formula-desc">정수 n의 분할 수 p(n)에 대한 점근 공식. n=200일 때 p(200)=3,972,999,029,388을 놀라운 정밀도로 예측합니다.</div>
+        </div>
+
+        <div class="formula-item">
+          <div class="formula-name">라마누잔의 π 급수</div>
+          <div class="formula-eq">1/π = (2√2/9801) Σ (4k)!(1103+26390k) / (k!)⁴ · 396⁴ᵏ</div>
+          <div class="formula-desc">첫 번째 항만으로도 π를 소수점 이하 8자리까지 정확하게 계산합니다. 현대 컴퓨터 π 계산의 근간입니다.</div>
+        </div>
+
+        <div class="formula-item">
+          <div class="formula-name">로저스-라마누잔 항등식</div>
+          <div class="formula-eq">Σ q^(k²) / (q;q)ₖ = ∏ 1/((1−q^(5n+1))(1−q^(5n+4)))</div>
+          <div class="formula-desc">모듈 형식, 분할수, 통계역학(하드 헥사곤 모델)을 연결하는 심오한 항등식입니다.</div>
+        </div>
+
+        <div class="formula-item">
+          <div class="formula-name">라마누잔 합산 (발산급수)</div>
+          <div class="formula-eq">1 + 2 + 3 + 4 + ⋯ = −1/12</div>
+          <div class="formula-desc">리만 제타함수 ζ(−1) = −1/12와 동등. 양자장론에서 카시미르 효과, 보조닉 끈 이론의 26차원 계산에 직접 사용됩니다.</div>
+        </div>
+
+        <div class="formula-item">
+          <div class="formula-name">하디-라마누잔 수 (택시캡 수)</div>
+          <div class="formula-eq">1729 = 1³ + 12³ = 9³ + 10³</div>
+          <div class="formula-desc">하디가 병문안 시 택시 번호 1729를 "재미없는 수"라 말하자, 라마누잔이 "두 가지 방법으로 두 세제곱수의 합으로 표현되는 가장 작은 수"라 즉시 답한 일화로 유명합니다.</div>
+        </div>
+
+        <div class="formula-item">
+          <div class="formula-name">라마누잔 세타 함수</div>
+          <div class="formula-eq">f(a,b) = Σ aⁿ⁽ⁿ⁺¹⁾/² · bⁿ⁽ⁿ⁻¹⁾/²</div>
+          <div class="formula-desc">야코비 세타 함수를 일반화한 것으로, 모의 세타 함수 연구의 출발점이 됩니다. 현대 수론과 대칭 함수론의 핵심 대상입니다.</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><span>✦</span></div>
+
+  <!-- LEGACY -->
+  <section id="legacy">
+    <div class="section-header reveal">
+      <span class="section-number">05</span>
+      <h2 class="section-title">현대에 살아있는 <em>유산</em></h2>
+    </div>
+    <div class="legacy-grid">
+      <div class="legacy-text reveal">
+        <h3>수학 너머 세계에 남긴 발자국</h3>
+        <p>라마누잔이 남긴 노트북(Notebooks)들은 지금도 새로운 연구의 원천입니다. 그의 세 권의 노트에는 수천 개의 공식이 담겨 있으며, 수학자들은 오늘날도 그 증명들을 연구하고 있습니다.</p>
+        <ul class="legacy-list">
+          <li>인도 12월 22일: <strong>국가 수학의 날(National Mathematics Day)</strong> 지정</li>
+          <li>2015년 개봉 영화 <em>《The Man Who Knew Infinity》</em> — 그의 생애를 다룬 전기 영화</li>
+          <li><strong>라마누잔 수학상(SASTRA Ramanujan Prize)</strong>: 매년 32세 이하 수학자에게 수여</li>
+          <li>블랙홀 엔트로피 계산에 모의 세타 함수 응용 (2010년대~현재)</li>
+          <li>끈 이론의 26차원 설정에 라마누잔 합산 사용</li>
+          <li>암호화, 데이터 압축 알고리즘에 연분수 이론 응용</li>
+          <li>체나이 항공에서 그의 이름을 딴 <strong>라마누잔 특별상</strong> 운영</li>
+          <li>NASA, Wolfram Research 등 기관들의 지속적 연구 지원</li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <blockquote class="big-quote">
+          "I have never met his equal, and I can compare him only with Euler or Jacobi."
+          <cite>— G.H. Hardy, F.R.S.</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="reveal">
+    <div class="footer-name">Srinivasa Ramanujan &nbsp;·&nbsp; 1887 – 1920</div>
+    <div class="footer-note">The Man Who Knew Infinity</div>
+  </footer>
+
+</div><!-- /wrap -->
+
+<script>
+  /* ── Background Canvas: floating math symbols ── */
+  const canvas = document.getElementById('bg-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  const symbols = ['∑','∫','π','∞','√','Δ','τ','θ','φ','ζ','Γ','∂','≡','∼','≈','∏'];
+
+  function init() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    particles = Array.from({length: 40}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      s: symbols[Math.floor(Math.random() * symbols.length)],
+      size: 10 + Math.random() * 22,
+      speed: 0.15 + Math.random() * 0.3,
+      opacity: 0.04 + Math.random() * 0.1,
+      drift: (Math.random() - 0.5) * 0.2
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      ctx.font = `${p.size}px 'Cormorant Garamond', serif`;
+      ctx.fillStyle = `rgba(201, 149, 58, ${p.opacity})`;
+      ctx.fillText(p.s, p.x, p.y);
+      p.y -= p.speed;
+      p.x += p.drift;
+      if (p.y < -40) { p.y = H + 20; p.x = Math.random() * W; }
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', init);
+  init(); draw();
+
+  /* ── Nav scroll class ── */
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  /* ── Intersection Observer: reveal ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.transitionDelay = `${(i % 4) * 0.1}s`;
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
